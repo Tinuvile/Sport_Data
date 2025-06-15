@@ -1,0 +1,559 @@
+{% extends "base.html" %} {% block title %}NBA数据{% endblock %} {% block
+content %}
+<div class="text-center mb-4">
+  <h1 class="display-5 fw-bold">
+    <i class="fas fa-basketball-ball nba-color"></i> NBA数据
+  </h1>
+  <p class="lead">NBA球队信息、联盟积分榜、球队赛程、球员数据</p>
+</div>
+
+<!-- 控制面板 -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-cog"></i> 数据控制</h5>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-4">
+            <label for="teamSelect" class="form-label">选择球队:</label>
+            <select class="form-select" id="teamSelect">
+              <!-- 东部联盟 -->
+              <optgroup label="东部联盟">
+                <option value="Hawks">亚特兰大老鹰</option>
+                <option value="Celtics">波士顿凯尔特人</option>
+                <option value="Nets">布鲁克林篮网</option>
+                <option value="Hornets">夏洛特黄蜂</option>
+                <option value="Bulls">芝加哥公牛</option>
+                <option value="Cavaliers">克利夫兰骑士</option>
+                <option value="Pistons">底特律活塞</option>
+                <option value="Pacers">印第安纳步行者</option>
+                <option value="Heat">迈阿密热火</option>
+                <option value="Bucks">密尔沃基雄鹿</option>
+                <option value="Knicks">纽约尼克斯</option>
+                <option value="Magic">奥兰多魔术</option>
+                <option value="76ers">费城76人</option>
+                <option value="Raptors">多伦多猛龙</option>
+                <option value="Wizards">华盛顿奇才</option>
+              </optgroup>
+              <!-- 西部联盟 -->
+              <optgroup label="西部联盟">
+                <option value="Nuggets">丹佛掘金</option>
+                <option value="Timberwolves">明尼苏达森林狼</option>
+                <option value="Thunder">俄克拉荷马雷霆</option>
+                <option value="Trail Blazers">波特兰开拓者</option>
+                <option value="Jazz">犹他爵士</option>
+                <option value="Warriors">金州勇士</option>
+                <option value="Clippers">洛杉矶快船</option>
+                <option value="Lakers">洛杉矶湖人</option>
+                <option value="Suns">菲尼克斯太阳</option>
+                <option value="Kings">萨克拉门托国王</option>
+                <option value="Mavericks">达拉斯独行侠</option>
+                <option value="Rockets">休斯顿火箭</option>
+                <option value="Grizzlies">孟菲斯灰熊</option>
+                <option value="Pelicans">新奥尔良鹈鹕</option>
+                <option value="Spurs">圣安东尼奥马刺</option>
+              </optgroup>
+            </select>
+            <small class="text-muted">支持语音查询所有球队</small>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label">快速操作:</label>
+            <div class="btn-group w-100" role="group">
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                onclick="loadTeams()"
+              >
+                <i class="fas fa-users"></i> 球队
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-success"
+                onclick="loadStandings()"
+              >
+                <i class="fas fa-table"></i> 积分榜
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-warning"
+                onclick="loadTeamSchedule()"
+              >
+                <i class="fas fa-calendar"></i> 赛程
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-info"
+                onclick="loadTeamPlayers()"
+              >
+                <i class="fas fa-user-friends"></i> 球员
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 数据展示区域 -->
+<div class="row">
+  <!-- 球队信息 -->
+  <div class="col-12 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-users"></i> NBA球队</h5>
+      </div>
+      <div class="card-body" id="teams-content">
+        <div class="text-center">
+          <button class="btn btn-primary" onclick="loadTeams()">
+            <i class="fas fa-download"></i> 加载球队数据
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 联盟积分榜 -->
+  <div class="col-lg-8 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-table"></i> 联盟积分榜</h5>
+      </div>
+      <div class="card-body" id="standings-content">
+        <div class="text-center">
+          <button class="btn btn-success" onclick="loadStandings()">
+            <i class="fas fa-download"></i> 加载积分榜
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 球队赛程 -->
+  <div class="col-lg-4 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-calendar"></i> 球队赛程</h5>
+      </div>
+      <div class="card-body" id="schedule-content">
+        <div class="text-center">
+          <button class="btn btn-warning" onclick="loadTeamSchedule()">
+            <i class="fas fa-download"></i> 加载赛程
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 球员信息 -->
+  <div class="col-12 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-user-friends"></i> 球员信息</h5>
+      </div>
+      <div class="card-body" id="players-content">
+        <div class="text-center">
+          <button class="btn btn-info" onclick="loadTeamPlayers()">
+            <i class="fas fa-download"></i> 加载球员数据
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  async function loadTeams() {
+    showLoading("teams-content");
+
+    try {
+      const response = await fetch("/api/nba/teams");
+      const data = await response.json();
+
+      if (data.success) {
+        let html =
+          '<div class="alert alert-info"><strong>NBA球队</strong> - 共' +
+          data.teams.length +
+          '支球队</div><div class="row">';
+
+        data.teams.forEach((team) => {
+          html +=
+            '<div class="col-md-3 mb-3"><div class="card"><div class="card-body text-center"><h6 class="card-title">' +
+            team.full_name +
+            '</h6><p class="card-text small">' +
+            team.city +
+            '</p><p class="card-text small">分区: ' +
+            team.division +
+            "</p></div></div></div>";
+        });
+
+        html += "</div>";
+        document.getElementById("teams-content").innerHTML = html;
+      } else {
+        showError("teams-content", data.error);
+      }
+    } catch (error) {
+      showError("teams-content", "加载球队失败: " + error.message);
+    }
+  }
+
+  async function loadStandings() {
+    showLoading("standings-content");
+
+    try {
+      const response = await fetch("/api/nba/standings");
+      const data = await response.json();
+
+      if (data.success) {
+        // 分离东西部联盟
+        const easternConference = data.standings
+          .filter((team) => team.conference === "East")
+          .slice(0, 15);
+        const westernConference = data.standings
+          .filter((team) => team.conference === "West")
+          .slice(0, 15);
+
+        let html = `
+          <div class="alert alert-success d-flex align-items-center">
+            <i class="fas fa-basketball-ball me-2"></i>
+            <div>
+              <strong>NBA联盟积分榜</strong> - 2023-24赛季
+              <br><small class="text-muted">东西部各15支球队</small>
+            </div>
+          </div>
+          
+          <div class="row">
+            <!-- 东部联盟 -->
+            <div class="col-lg-6 mb-4">
+              <h6 class="text-center mb-3">
+                <i class="fas fa-sun text-warning"></i> 东部联盟
+              </h6>
+              <div class="table-responsive">
+                <table class="table table-hover table-striped table-sm">
+                  <thead class="table-dark">
+                    <tr>
+                      <th class="text-center">排名</th>
+                      <th>球队</th>
+                      <th class="text-center">胜</th>
+                      <th class="text-center">负</th>
+                      <th class="text-center">胜率</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+
+        easternConference.forEach((team, index) => {
+          let rowClass = "";
+          if (index < 6) {
+            rowClass = "table-success"; // 季后赛直接晋级
+          } else if (index < 10) {
+            rowClass = "table-warning"; // 附加赛
+          }
+
+          html += `
+            <tr class="${rowClass}">
+              <td class="text-center">
+                <span class="badge ${
+                  index < 6
+                    ? "bg-success"
+                    : index < 10
+                    ? "bg-warning"
+                    : "bg-secondary"
+                }">${index + 1}</span>
+              </td>
+              <td><strong>${team.team_name}</strong></td>
+              <td class="text-center text-success"><strong>${
+                team.wins
+              }</strong></td>
+              <td class="text-center text-danger">${team.losses}</td>
+              <td class="text-center">
+                <span class="badge bg-primary">${(
+                  team.win_percentage * 100
+                ).toFixed(1)}%</span>
+              </td>
+            </tr>`;
+        });
+
+        html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- 西部联盟 -->
+            <div class="col-lg-6 mb-4">
+              <h6 class="text-center mb-3">
+                <i class="fas fa-mountain text-info"></i> 西部联盟
+              </h6>
+              <div class="table-responsive">
+                <table class="table table-hover table-striped table-sm">
+                  <thead class="table-dark">
+                    <tr>
+                      <th class="text-center">排名</th>
+                      <th>球队</th>
+                      <th class="text-center">胜</th>
+                      <th class="text-center">负</th>
+                      <th class="text-center">胜率</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+
+        westernConference.forEach((team, index) => {
+          let rowClass = "";
+          if (index < 6) {
+            rowClass = "table-success"; // 季后赛直接晋级
+          } else if (index < 10) {
+            rowClass = "table-warning"; // 附加赛
+          }
+
+          html += `
+            <tr class="${rowClass}">
+              <td class="text-center">
+                <span class="badge ${
+                  index < 6
+                    ? "bg-success"
+                    : index < 10
+                    ? "bg-warning"
+                    : "bg-secondary"
+                }">${index + 1}</span>
+              </td>
+              <td><strong>${team.team_name}</strong></td>
+              <td class="text-center text-success"><strong>${
+                team.wins
+              }</strong></td>
+              <td class="text-center text-danger">${team.losses}</td>
+              <td class="text-center">
+                <span class="badge bg-primary">${(
+                  team.win_percentage * 100
+                ).toFixed(1)}%</span>
+              </td>
+            </tr>`;
+        });
+
+        html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-success me-1">1-6</span>
+                  <small>季后赛直接晋级</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-warning me-1">7-10</span>
+                  <small>附加赛资格</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-secondary me-1">11-15</span>
+                  <small>未进季后赛</small>
+                </div>
+              </div>
+            </div>
+          </div>`;
+
+        document.getElementById("standings-content").innerHTML = html;
+      } else {
+        showError("standings-content", data.error);
+      }
+    } catch (error) {
+      showError("standings-content", "加载积分榜失败: " + error.message);
+    }
+  }
+
+  async function loadTeamSchedule() {
+    const teamName = document.getElementById("teamSelect").value;
+    showLoading("schedule-content");
+
+    try {
+      const response = await fetch("/api/nba/team-schedule/" + teamName);
+      const data = await response.json();
+
+      if (data.success) {
+        let html =
+          '<div class="alert alert-warning"><strong>' +
+          teamName +
+          " 赛程</strong> - 共" +
+          data.games.length +
+          "场比赛</div>";
+
+        if (data.games.length > 0) {
+          data.games.slice(0, 10).forEach((game) => {
+            html +=
+              '<div class="card mb-2"><div class="card-body p-2"><div class="text-center"><small>' +
+              formatDate(game.date) +
+              "</small><br><strong>" +
+              game.home_team +
+              '</strong><span class="mx-2">VS</span><strong>' +
+              game.away_team +
+              "</strong></div></div></div>";
+          });
+        } else {
+          html += '<p class="text-center text-muted">暂无赛程数据</p>';
+        }
+
+        document.getElementById("schedule-content").innerHTML = html;
+      } else {
+        showError("schedule-content", data.error);
+      }
+    } catch (error) {
+      showError("schedule-content", "加载赛程失败: " + error.message);
+    }
+  }
+
+  async function loadTeamPlayers() {
+    const teamSelect = document.getElementById("teamSelect");
+    const teamName = teamSelect.value;
+    const teamDisplayName = teamSelect.options[teamSelect.selectedIndex].text;
+    showLoading("players-content");
+
+    try {
+      const response = await fetch("/api/nba/players/" + teamName);
+      const data = await response.json();
+
+      if (data.success) {
+        // 按位置分组球员
+        const playersByPosition = {
+          G: [], // 后卫
+          F: [], // 前锋
+          C: [], // 中锋
+          Other: [], // 其他
+        };
+
+        data.players.forEach((player) => {
+          const position = player.position || "Other";
+          if (position.includes("G")) {
+            playersByPosition["G"].push(player);
+          } else if (position.includes("F")) {
+            playersByPosition["F"].push(player);
+          } else if (position.includes("C")) {
+            playersByPosition["C"].push(player);
+          } else {
+            playersByPosition["Other"].push(player);
+          }
+        });
+
+        let html = `
+          <div class="alert alert-info d-flex align-items-center">
+            <i class="fas fa-users me-2"></i>
+            <div>
+              <strong>${teamDisplayName} 球员名单</strong>
+              <br><small class="text-muted">共 ${data.players.length} 名球员</small>
+            </div>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="table table-hover table-striped">
+              <thead class="table-dark">
+                <tr>
+                  <th>姓名</th>
+                  <th class="text-center">位置</th>
+                  <th class="text-center">身高</th>
+                  <th class="text-center">体重</th>
+                  <th class="text-center">年龄</th>
+                </tr>
+              </thead>
+              <tbody>`;
+
+        // 按位置顺序显示球员
+        const positionOrder = ["G", "F", "C", "Other"];
+        const positionNames = {
+          G: "后卫",
+          F: "前锋",
+          C: "中锋",
+          Other: "其他",
+        };
+
+        positionOrder.forEach((pos) => {
+          if (playersByPosition[pos].length > 0) {
+            // 位置分组标题
+            html += `
+              <tr class="table-secondary">
+                <td colspan="5" class="fw-bold">
+                  <i class="fas fa-basketball-ball me-2"></i>${positionNames[pos]} (${playersByPosition[pos].length}人)
+                </td>
+              </tr>`;
+
+            playersByPosition[pos].forEach((player) => {
+              const height = player.height_feet
+                ? `${player.height_feet}'${player.height_inches || 0}"`
+                : "-";
+              const weight = player.weight_pounds
+                ? `${player.weight_pounds} lbs`
+                : "-";
+              const age = player.age || "-";
+
+              // 安全地处理球员姓名
+              const playerName =
+                player.full_name ||
+                (player.first_name && player.last_name
+                  ? `${player.first_name} ${player.last_name}`
+                  : player.display_name ||
+                    `球员 #${player.jersey || "Unknown"}`);
+
+              html += `
+                <tr>
+                  <td>
+                    <strong>${playerName}</strong>
+                    ${
+                      player.jersey
+                        ? `<br><small class="text-muted">#${player.jersey}</small>`
+                        : ""
+                    }
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-primary">${
+                      player.position || "-"
+                    }</span>
+                  </td>
+                  <td class="text-center">${height}</td>
+                  <td class="text-center">${weight}</td>
+                  <td class="text-center">${age}</td>
+                </tr>`;
+            });
+          }
+        });
+
+        html += `
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-info me-1">G</span>
+                  <small>后卫 (Guard)</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-success me-1">F</span>
+                  <small>前锋 (Forward)</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-warning me-1">C</span>
+                  <small>中锋 (Center)</small>
+                </div>
+              </div>
+            </div>
+          </div>`;
+
+        document.getElementById("players-content").innerHTML = html;
+      } else {
+        showError("players-content", data.error);
+      }
+    } catch (error) {
+      showError("players-content", "加载球员失败: " + error.message);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(loadTeams, 500);
+  });
+</script>
+{% endblock %}

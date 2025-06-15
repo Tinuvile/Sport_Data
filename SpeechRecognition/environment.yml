@@ -1,0 +1,21 @@
+name: funasr-speech
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pytorch>=1.13
+  - torchaudio
+  - numpy
+  - scipy
+  - pip
+  - pip:
+      - funasr>=1.0
+      - modelscope
+      - huggingface_hub
+      - soundfile
+      - flask
+      - werkzeug
+      - sounddevice
+      - keyboard

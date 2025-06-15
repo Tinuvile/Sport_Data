@@ -1,0 +1,18 @@
+# 体育数据后端依赖包
+
+# 基础依赖
+requests>=2.31.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# F1 数据相关
+fastf1>=3.0.0
+
+# NBA 数据相关
+nba-api>=1.1.0
+
+# HTTP请求和重试
+urllib3>=2.0.0
+
+# 类型提示
+typing-extensions>=4.5.0 

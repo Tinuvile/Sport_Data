@@ -1,0 +1,333 @@
+{% extends "base.html" %} {% block title %}足球数据{% endblock %} {% block
+content %}
+<div class="text-center mb-4">
+  <h1 class="display-5 fw-bold">
+    <i class="fas fa-futbol football-color"></i> 足球数据
+  </h1>
+  <p class="lead">欧洲五大联赛积分榜、比赛数据、实时比分</p>
+</div>
+
+<!-- 控制面板 -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-cog"></i> 数据控制</h5>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-4">
+            <label for="leagueSelect" class="form-label">选择联赛:</label>
+            <select class="form-select" id="leagueSelect">
+              <option value="2021">英超联赛 (Premier League)</option>
+              <option value="2014">西甲联赛 (La Liga)</option>
+              <option value="2002">德甲联赛 (Bundesliga)</option>
+              <option value="2019">意甲联赛 (Serie A)</option>
+              <option value="2015">法甲联赛 (Ligue 1)</option>
+              <option value="2017">葡超联赛 (Primeira Liga)</option>
+              <option value="2003">荷甲联赛 (Eredivisie)</option>
+              <option value="2013">巴甲联赛 (Brasileirão)</option>
+              <option value="2016">俄超联赛 (Russian Premier League)</option>
+              <option value="2001">欧冠联赛 (Champions League)</option>
+            </select>
+            <small class="text-muted">支持语音查询所有联赛</small>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label">快速操作:</label>
+            <div class="btn-group w-100" role="group">
+              <button
+                type="button"
+                class="btn btn-outline-success"
+                onclick="loadStandings()"
+              >
+                <i class="fas fa-table"></i> 积分榜
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-warning"
+                onclick="loadTodayMatches()"
+              >
+                <i class="fas fa-calendar-day"></i> 今日比赛
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 数据展示区域 -->
+<div class="row">
+  <!-- 积分榜 -->
+  <div class="col-lg-8 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-table"></i> 联赛积分榜</h5>
+      </div>
+      <div class="card-body" id="standings-content">
+        <div class="text-center">
+          <button class="btn btn-success" onclick="loadStandings()">
+            <i class="fas fa-download"></i> 加载积分榜
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 今日比赛 -->
+  <div class="col-lg-4 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-calendar-day"></i> 今日比赛</h5>
+      </div>
+      <div class="card-body" id="today-matches-content">
+        <div class="text-center">
+          <button class="btn btn-warning" onclick="loadTodayMatches()">
+            <i class="fas fa-download"></i> 加载今日比赛
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  // 页面加载时初始化
+  document.addEventListener("DOMContentLoaded", function () {
+    loadCachedLeagueOptions();
+  });
+
+  // 加载缓存的联赛选项
+  async function loadCachedLeagueOptions() {
+    try {
+      const response = await fetch("/api/cache/options/football/standings");
+      const data = await response.json();
+
+      if (data.success && data.options.length > 0) {
+        const leagueSelect = document.getElementById("leagueSelect");
+
+        // 添加缓存的联赛选项
+        data.options.forEach((option) => {
+          // 检查是否已存在该选项
+          const existingOption = Array.from(leagueSelect.options).find(
+            (opt) => opt.value === option.value.toString()
+          );
+          if (!existingOption) {
+            const optionElement = document.createElement("option");
+            optionElement.value = option.value;
+            optionElement.textContent = option.label + " (语音查询)";
+            optionElement.dataset.cacheKey = option.cache_key;
+            optionElement.dataset.fromCache = "true";
+            leagueSelect.appendChild(optionElement);
+          }
+        });
+
+        console.log(`已加载 ${data.options.length} 个缓存的联赛选项`);
+      }
+    } catch (error) {
+      console.error("加载缓存联赛选项失败:", error);
+    }
+  }
+
+  // 修改积分榜加载函数，支持缓存数据
+  async function loadStandings() {
+    const leagueSelect = document.getElementById("leagueSelect");
+    const selectedOption = leagueSelect.options[leagueSelect.selectedIndex];
+    const leagueId = selectedOption.value;
+    const isFromCache = selectedOption.dataset.fromCache === "true";
+    const cacheKey = selectedOption.dataset.cacheKey;
+
+    showLoading("standings-content");
+
+    try {
+      let response, data;
+
+      if (isFromCache && cacheKey) {
+        // 从缓存加载数据
+        response = await fetch(`/api/cache/result/football/${cacheKey}`);
+        const cacheData = await response.json();
+
+        if (cacheData.success) {
+          data = cacheData.result.result_data;
+
+          // 添加缓存标识
+          const cacheInfo = `<div class="alert alert-info">
+            <i class="fas fa-clock"></i> 
+            <strong>缓存数据</strong> - 来自语音查询: "${
+              cacheData.result.original_text
+            }"
+            <br><small>查询时间: ${new Date(
+              cacheData.result.timestamp
+            ).toLocaleString()}</small>
+          </div>`;
+
+          displayStandings(data, cacheInfo);
+          return;
+        }
+      }
+
+      // 从API加载数据
+      response = await fetch("/api/football/standings/" + leagueId);
+      data = await response.json();
+      displayStandings(data);
+    } catch (error) {
+      showError("standings-content", "加载积分榜失败: " + error.message);
+    }
+  }
+
+  // 显示积分榜数据
+  function displayStandings(data, extraInfo = "") {
+    if (data.success && data.standings.length > 0) {
+      const standings = data.standings[0].table;
+
+      let html =
+        extraInfo +
+        `
+        <div class="alert alert-success d-flex align-items-center">
+          <i class="fas fa-trophy me-2"></i>
+          <div>
+            <strong>${data.competition.name}</strong> - ${data.season.startDate} 赛季
+            <br><small class="text-muted">共 ${standings.length} 支球队</small>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th class="text-center">排名</th>
+                <th>球队</th>
+                <th class="text-center">场次</th>
+                <th class="text-center">胜</th>
+                <th class="text-center">平</th>
+                <th class="text-center">负</th>
+                <th class="text-center">进球</th>
+                <th class="text-center">失球</th>
+                <th class="text-center">净胜球</th>
+                <th class="text-center">积分</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+      standings.forEach((team, index) => {
+        // 根据排名设置不同的样式
+        let rowClass = "";
+        if (team.position <= 4) {
+          rowClass = "table-success"; // 欧冠区
+        } else if (team.position <= 6) {
+          rowClass = "table-info"; // 欧联杯区
+        } else if (team.position >= standings.length - 2) {
+          rowClass = "table-danger"; // 降级区
+        }
+
+        html += `
+          <tr class="${rowClass}">
+            <td class="text-center">
+              <span class="badge ${
+                team.position <= 4
+                  ? "bg-success"
+                  : team.position <= 6
+                  ? "bg-info"
+                  : team.position >= standings.length - 2
+                  ? "bg-danger"
+                  : "bg-primary"
+              }">${team.position}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>${team.team.name}</strong>
+                ${
+                  team.team.crest
+                    ? `<img src="${team.team.crest}" alt="${team.team.name}" class="ms-2" style="width: 20px; height: 20px;">`
+                    : ""
+                }
+              </div>
+            </td>
+            <td class="text-center">${team.playedGames}</td>
+            <td class="text-center text-success"><strong>${
+              team.won
+            }</strong></td>
+            <td class="text-center text-warning">${team.draw}</td>
+            <td class="text-center text-danger">${team.lost}</td>
+            <td class="text-center">${team.goalsFor}</td>
+            <td class="text-center">${team.goalsAgainst}</td>
+            <td class="text-center ${
+              team.goalDifference >= 0 ? "text-success" : "text-danger"
+            }">
+              ${team.goalDifference >= 0 ? "+" : ""}${team.goalDifference}
+            </td>
+            <td class="text-center">
+              <span class="badge bg-primary fs-6">${team.points}</span>
+            </td>
+          </tr>`;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+              <div class="d-flex align-items-center">
+                <span class="badge bg-success me-1">1-4</span>
+                <small>欧冠资格</small>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="badge bg-info me-1">5-6</span>
+                <small>欧联杯资格</small>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="badge bg-danger me-1">降级区</span>
+                <small>降级区域</small>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById("standings-content").innerHTML = html;
+    } else {
+      showError("standings-content", data.error || "暂无积分榜数据");
+    }
+  }
+
+  async function loadTodayMatches() {
+    showLoading("today-matches-content");
+
+    try {
+      const response = await fetch("/api/football/today-matches");
+      const data = await response.json();
+
+      if (data.success) {
+        let html =
+          '<div class="alert alert-warning"><strong>今日比赛</strong> - 共' +
+          data.matches.length +
+          "场比赛</div>";
+
+        if (data.matches.length > 0) {
+          data.matches.forEach((match) => {
+            html +=
+              '<div class="card mb-2"><div class="card-body p-2"><div class="text-center"><strong>' +
+              match.homeTeam.name +
+              '</strong><span class="mx-2">VS</span><strong>' +
+              match.awayTeam.name +
+              "</strong></div></div></div>";
+          });
+        } else {
+          html += '<p class="text-center text-muted">今日暂无比赛</p>';
+        }
+
+        document.getElementById("today-matches-content").innerHTML = html;
+      } else {
+        showError("today-matches-content", data.error);
+      }
+    } catch (error) {
+      showError("today-matches-content", "加载今日比赛失败: " + error.message);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(loadStandings, 500);
+  });
+</script>
+{% endblock %}

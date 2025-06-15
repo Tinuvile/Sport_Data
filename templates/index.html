@@ -1,0 +1,243 @@
+{% extends "base.html" %} {% block title %}体育数据中心 - 首页{% endblock %} {%
+block content %}
+<div class="text-center mb-5">
+  <h1 class="display-4 fw-bold mb-3">
+    <i class="fas fa-trophy text-warning"></i> 体育数据中心
+  </h1>
+  <p class="lead">实时获取F1赛车、足球、NBA等体育赛事数据</p>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row mb-5">
+  <div class="col-md-4 mb-3">
+    <div class="stats-card">
+      <div class="stats-number" id="f1-stats">-</div>
+      <div class="stats-label">F1赛季比赛</div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stats-card">
+      <div class="stats-number" id="football-stats">-</div>
+      <div class="stats-label">足球联赛</div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stats-card">
+      <div class="stats-number" id="nba-stats">30</div>
+      <div class="stats-label">NBA球队</div>
+    </div>
+  </div>
+</div>
+
+<!-- 体育项目卡片 -->
+<div class="row">
+  <!-- F1赛车 -->
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header text-center">
+        <i class="fas fa-flag-checkered sport-icon f1-color"></i>
+        <h5 class="mb-0">F1赛车</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          获取F1赛季赛程、比赛结果、车手积分榜、车队积分榜等数据。
+        </p>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-check text-success"></i> 当前赛季赛程</li>
+          <li><i class="fas fa-check text-success"></i> 车手积分榜</li>
+          <li><i class="fas fa-check text-success"></i> 车队积分榜</li>
+          <li><i class="fas fa-check text-success"></i> 比赛结果</li>
+          <li><i class="fas fa-check text-success"></i> 排位赛结果</li>
+        </ul>
+      </div>
+      <div class="card-footer text-center">
+        <a href="/f1" class="btn btn-primary">
+          <i class="fas fa-racing-car"></i> 查看F1数据
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 足球 -->
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header text-center">
+        <i class="fas fa-futbol sport-icon football-color"></i>
+        <h5 class="mb-0">足球</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          获取主要足球联赛的积分榜、比赛数据、实时比分等信息。
+        </p>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-check text-success"></i> 联赛积分榜</li>
+          <li><i class="fas fa-check text-success"></i> 比赛赛程</li>
+          <li><i class="fas fa-check text-success"></i> 实时比分</li>
+          <li><i class="fas fa-check text-success"></i> 今日比赛</li>
+          <li><i class="fas fa-check text-success"></i> 球队信息</li>
+        </ul>
+      </div>
+      <div class="card-footer text-center">
+        <a href="/football" class="btn btn-primary">
+          <i class="fas fa-futbol"></i> 查看足球数据
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NBA -->
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header text-center">
+        <i class="fas fa-basketball-ball sport-icon nba-color"></i>
+        <h5 class="mb-0">NBA</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          获取NBA球队信息、联盟积分榜、球队赛程、球员数据等。
+        </p>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-check text-success"></i> 球队信息</li>
+          <li><i class="fas fa-check text-success"></i> 联盟积分榜</li>
+          <li><i class="fas fa-check text-success"></i> 球队赛程</li>
+          <li><i class="fas fa-check text-success"></i> 球员数据</li>
+          <li><i class="fas fa-check text-success"></i> ESPN集成</li>
+        </ul>
+      </div>
+      <div class="card-footer text-center">
+        <a href="/nba" class="btn btn-primary">
+          <i class="fas fa-basketball-ball"></i> 查看NBA数据
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 功能特色 -->
+<div class="row mt-5">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header text-center">
+        <h5 class="mb-0"><i class="fas fa-star"></i> 平台特色</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 text-center mb-3">
+            <i class="fas fa-sync-alt fa-2x text-primary mb-2"></i>
+            <h6>实时数据</h6>
+            <p class="small text-muted">实时获取最新的体育赛事数据</p>
+          </div>
+          <div class="col-md-3 text-center mb-3">
+            <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+            <h6>数据可视化</h6>
+            <p class="small text-muted">图表展示，数据一目了然</p>
+          </div>
+          <div class="col-md-3 text-center mb-3">
+            <i class="fas fa-mobile-alt fa-2x text-warning mb-2"></i>
+            <h6>响应式设计</h6>
+            <p class="small text-muted">支持手机、平板、电脑访问</p>
+          </div>
+          <div class="col-md-3 text-center mb-3">
+            <i class="fas fa-database fa-2x text-info mb-2"></i>
+            <h6>多数据源</h6>
+            <p class="small text-muted">整合多个权威体育数据源</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 最新动态 -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-newspaper"></i> 最新动态</h5>
+      </div>
+      <div class="card-body" id="latest-news">
+        <div class="loading">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">加载中...</span>
+          </div>
+          <p class="mt-3">正在加载最新动态...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 加载统计数据
+    loadStats();
+    // 加载最新动态
+    loadLatestNews();
+  });
+
+  async function loadStats() {
+    try {
+      // 加载F1统计
+      const f1Response = await fetch("/api/f1/schedule");
+      if (f1Response.ok) {
+        const f1Data = await f1Response.json();
+        if (f1Data.success) {
+          document.getElementById("f1-stats").textContent = f1Data.total_events;
+        }
+      }
+
+      // 加载足球统计
+      const footballResponse = await fetch("/api/football/leagues");
+      if (footballResponse.ok) {
+        const footballData = await footballResponse.json();
+        if (footballData.success) {
+          document.getElementById("football-stats").textContent =
+            footballData.competitions.length;
+        }
+      }
+    } catch (error) {
+      console.error("加载统计数据失败:", error);
+    }
+  }
+
+  async function loadLatestNews() {
+    try {
+      // 模拟加载最新动态
+      setTimeout(() => {
+        const newsHtml = `
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-flag-checkered"></i> F1赛事</h6>
+                            <p class="mb-0 small">2025赛季已开始，共25场比赛等待车手们的挑战。</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-futbol"></i> 足球联赛</h6>
+                            <p class="mb-0 small">欧洲五大联赛数据实时更新，积分榜竞争激烈。</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-basketball-ball"></i> NBA赛季</h6>
+                            <p class="mb-0 small">NBA常规赛进行中，30支球队争夺季后赛席位。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <p class="text-muted small">
+                        <i class="fas fa-clock"></i> 数据更新时间: ${new Date().toLocaleString(
+                          "zh-CN"
+                        )}
+                    </p>
+                </div>
+            `;
+        document.getElementById("latest-news").innerHTML = newsHtml;
+      }, 1000);
+    } catch (error) {
+      showError("latest-news", "加载最新动态失败");
+    }
+  }
+</script>
+{% endblock %}
